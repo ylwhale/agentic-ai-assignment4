@@ -17,16 +17,16 @@ What each layer is for (Lecture 1, slides 42 to 44):
 - **Observability**: a step-by-step record of what it did.
 - **Evaluation**: measuring quality, before and after release.
 
-The table below is RepoMind as Assignment 3 left it.
+The table below describes RepoMind after Assignment 4.
 
 | Layer | What does this job | Where it is enforced | Status |
 |---|---|---|---|
 | Model | The configured model, called only through the metered client | `harness/client.py:150` | present |
-| Harness | The loop, with three bounds checked in code; a plan validated before it runs, and an executor that runs only the plan's steps | `agent/loop.py:38`, `ways/planned.py:117`, `ways/planned.py:218` | present |
+| Harness | The loop, with three bounds checked in code; a plan validated before it runs, and an executor that runs only the plan's steps | `agent/loop.py:38`, `ways/planned.py:113`, `ways/planned.py:218` | present |
 | Tools | Five namespaced tools behind one registry: every call checked at the boundary before it runs; every write keyed by the harness, checked before each attempt and read back after a timeout; every attempt in the call record | `tools/__init__.py:166`, `tools/__init__.py:249`, `tools/__init__.py:254`, `tools/__init__.py:271`, `tools/__init__.py:315` | present |
-| Memory & State | A run's progress file, outside the model's context | `ways/notes.py:67` | partial: nothing survives a run |
-| Control & Policy | A hook runs before every call and denies when it fails; a write that cannot be confirmed goes to a person; the second pass holds a draft that still fails | `tools/__init__.py:221`, `ways/planned.py:186` | partial: the hook allows every call |
-| Observability | One trace line per model call and per tool call, and the plan as data before it runs | `agent/loop.py:50`, `ways/planned.py:89` | partial: traces, no alerts |
+| Memory & State | Synchronous SQLite checkpoints persist execution state, completed calls, findings, and pending write arguments for crash recovery. A provenance-aware SQLite memory store persists knowledge across runs and supports supersession. | `state/checkpointer.py:58`, `state/checkpointer.py:90`, `state/store.py:178`, `state/store.py:187`, `state/store.py:213`, `ways/planned.py:316`, `ways/planned.py:353`, `ways/planned.py:471` | present |
+| Control & Policy | A hook runs before every call and denies when it fails; a write that cannot be confirmed goes to a person; the second pass holds a draft that still fails | `tools/__init__.py:221`, `ways/planned.py:1689` | partial: the hook allows every call |
+| Observability | One trace line per model call and per tool call, and the plan as data before it runs | `agent/loop.py:50`, `ways/planned.py:812` | partial: traces, no alerts |
 | Evaluation | The grounded check reads the tracker, never the agent | `eval/check_triage.py:7` | partial: offline only |
 
-**Empty layers: 0 of 7**, and five are partial.
+**Empty layers: 0 of 7**, and three are partial.

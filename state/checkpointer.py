@@ -1,49 +1,114 @@
-"""Assignment 4, Part A: the checkpointer. This file is yours.
 
-A checkpointer saves one run's state, so its checkpoints are keyed by the run's
-run_id (frameworks call one run's line of checkpoints a thread). Save them on a
-durable backend: a SQLite file such as state/checkpoints.db is fine; an in-memory
-store is not, because it dies with the process. A sync save is on disk before
-save() returns.
-
-The checker calls these, with these exact signatures (checks/FORMATS.md, section
-12.4), so keep them:
-
-    Checkpointer(path=None)                    # None: your default file
-    .save(run_id, checkpoint, *, step, mode)   # one checkpoint; mode is sync, async or exit
-    .last(run_id) -> dict | None               # the run's latest checkpoint, or None
-    .all(run_id) -> list[dict]                 # every checkpoint the run saved, oldest first
-    .runs() -> list[str]                       # every run_id that has a checkpoint
-
-A checkpoint is a dict of exactly the five fields in harness.formats.CHECKPOINT_FIELDS:
-plan, step_status, completed_calls (each with its idempotency key), findings and
-current_step. Everything in it must serialize, and the conversation is not in it.
-Every save is also a trace line, trace.event("checkpoint", step=..., mode=...),
-which your way writes.
-"""
+"""SQLite-backed checkpoints for Assignment 4, Part A."""
 
 from __future__ import annotations
 
+import json
+import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 from harness import ROOT
-from harness.formats import CHECKPOINT_FIELDS, DURABILITY_MODES  # noqa: F401
+from harness.formats import CHECKPOINT_FIELDS, DURABILITY_MODES
 
 DEFAULT = ROOT / "state" / "checkpoints.db"
 
 
+def _has_conversation(value) -> bool:
+    """Reject chat transcripts, even if nested inside a checkpoint field."""
+    if isinstance(value, dict):
+        keys = {str(key).lower() for key in value}
+        if keys & {"conversation", "messages", "history", "transcript"}:
+            return True
+        if {"role", "content"} <= keys:
+            return True
+        return any(_has_conversation(item) for item in value.values())
+    if isinstance(value, list):
+        return any(_has_conversation(item) for item in value)
+    return False
+
+
 class Checkpointer:
     def __init__(self, path: Path | None = None):
-        self.path = Path(path or DEFAULT)
+        # Use the assignment database by default, or a separate file in tests.
+        self.path = Path(path) if path is not None else DEFAULT
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+
+        with closing(self._connect()) as conn:
+            with conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS checkpoints (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        run_id TEXT NOT NULL,
+                        step TEXT NOT NULL,
+                        mode TEXT NOT NULL,
+                        payload TEXT NOT NULL
+                    )
+                """)
+                conn.execute("""
+                    CREATE INDEX IF NOT EXISTS checkpoints_by_run
+                    ON checkpoints (run_id, id)
+                """)
+
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.path, timeout=30)
+        conn.execute("PRAGMA synchronous = FULL")
+        return conn
 
     def save(self, run_id: str, checkpoint: dict, *, step, mode: str = "sync") -> None:
-        raise NotImplementedError("Assignment 4, Part A: save one checkpoint")
+        """Save one checkpoint, committing to disk before returning."""
+        if mode not in DURABILITY_MODES:
+            raise ValueError(f"Unknown durability mode: {mode}")
+        if mode != "sync":
+            raise NotImplementedError("This implementation selects sync durability")
+
+        if not isinstance(checkpoint, dict) or set(checkpoint) != set(CHECKPOINT_FIELDS):
+            raise ValueError(f"A checkpoint must have exactly: {CHECKPOINT_FIELDS}")
+
+        calls = checkpoint["completed_calls"]
+        required_call_fields = {"step", "tool", "args", "key", "result"}
+        if not isinstance(calls, list) or any(
+            not isinstance(call, dict) or not required_call_fields.issubset(call)
+            for call in calls
+        ):
+            raise ValueError("Each completed call needs step, tool, args, key and result")
+
+        if _has_conversation(checkpoint):
+            raise ValueError("A checkpoint must not contain model conversations")
+
+        # JSON serialization snapshots the state and rejects unserializable objects.
+        payload = json.dumps(checkpoint, allow_nan=False)
+
+        # SQLite commits the insert before this function returns.
+        with closing(self._connect()) as conn:
+            with conn:
+                conn.execute(
+                    "INSERT INTO checkpoints (run_id, step, mode, payload) VALUES (?, ?, ?, ?)",
+                    (run_id, str(step), mode, payload),
+                )
 
     def last(self, run_id: str) -> dict | None:
-        raise NotImplementedError("Assignment 4, Part B: the run's latest checkpoint, for a resume")
+        """Load the newest saved state for a run, or None."""
+        with closing(self._connect()) as conn:
+            row = conn.execute(
+                "SELECT payload FROM checkpoints WHERE run_id = ? ORDER BY id DESC LIMIT 1",
+                (run_id,),
+            ).fetchone()
+        return json.loads(row[0]) if row is not None else None
 
     def all(self, run_id: str) -> list[dict]:
-        raise NotImplementedError("Assignment 4, Part A: every checkpoint the run saved, oldest first")
+        """Load every saved state for a run, oldest first."""
+        with closing(self._connect()) as conn:
+            rows = conn.execute(
+                "SELECT payload FROM checkpoints WHERE run_id = ? ORDER BY id ASC",
+                (run_id,),
+            ).fetchall()
+        return [json.loads(row[0]) for row in rows]
 
     def runs(self) -> list[str]:
-        raise NotImplementedError("Assignment 4, Part A: every run_id with a checkpoint")
+        """Return each run ID that has at least one saved checkpoint."""
+        with closing(self._connect()) as conn:
+            rows = conn.execute(
+                "SELECT DISTINCT run_id FROM checkpoints ORDER BY run_id"
+            ).fetchall()
+        return [row[0] for row in rows]

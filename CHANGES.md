@@ -17,3 +17,8 @@ Removals are logged like additions.
 - **Added:** five rewritten tool definitions with examples, among them open_pr; a boundary check before every call; errors that name the fix; harness-derived idempotency keys, a check before every write attempt and a read-back after a timeout; the call record; a fail-closed hook
 - **Removed:** free-text tool descriptions and free-form filters; protocol detail in anything the model sees
 - **Constrained:** every write to be safe to retry, and to a person when its outcome cannot be read back; the comment to the last write, after the PR
+
+## Assignment 4
+- **Added:** a synchronous SQLite checkpointer (`state/checkpointer.py`), durable completed-call records and recovery of pending write arguments; a provenance-aware persistent memory store (`state/store.py`), memory write policy, supersession support, and forgetting-boundary experiments.
+- **Removed:** dependence on process-only execution state for recovery. The validated plan, step status, completed calls, findings, and pending write arguments can now be restored from persistent checkpoints after a crash.
+- **Constrained:** irreversible writes to follow a synchronous checkpoint; normal-mode write retries to reuse saved arguments and derived idempotency keys; memory records to explicit provenance, verification status, repository/issue scope, and controlled supersession. Experimental UUID-key retries are retained only to demonstrate duplicate-write risk.

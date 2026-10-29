@@ -18,10 +18,19 @@ Submit the plan with submit_plan, once. Each step:
 - id: 1, 2, 3, ... in order.
 - action: what the step does, in a few words.
 - tool: exactly one tool from the list you are given, by its name.
-- args_json: the tool's arguments as a JSON object written as a string, for
-  example "{\"issue\": \"issue-4191\"}". Write "$fill" for any value that depends on
+- args_json: a string containing one complete JSON object. For example, the
+  string's contents for an issue read are:
+      {"issue": "issue-4191"}
+  For a search they can be:
+      {"query": "$fill", "path_glob": null, "response_format": "concise"}
+  Let submit_plan's outer JSON encode that string once. Do not put literal
+  backslashes before the object's property quotes or leave an object unfinished.
+  Use only the tool's exact argument names, include every required argument, and
+  follow its value types and enums. null is a value, not permission to omit a
+  required argument. Write "$fill" for any value that depends on
   what an earlier step finds: search terms, a file path, the comment's text, the
   pull request's title and body. The issue is the one value you know now.
+  Placeholders are values only: use "body": "$fill", never "<body>" as a key.
 - depends_on: the ids of earlier steps whose results this step uses. Never a later
   step.
 - expected_result: what the step returns when it worked, something a program could

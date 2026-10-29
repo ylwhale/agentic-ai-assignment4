@@ -33,9 +33,9 @@ def _prompt(rel: str) -> str:
 def _tool_list(tool_schemas: list[dict]) -> str:
     lines = []
     for tool in tool_schemas:
-        props = (tool.get("input_schema") or {}).get("properties") or {}
-        args = ", ".join(f"{name} ({spec.get('type', 'any')})" for name, spec in props.items())
-        lines.append(f"- {tool['name']}: {tool.get('description', '')} Arguments: {args or 'none'}.")
+        schema = tool.get("input_schema") or {}
+        lines.append(f"- {tool['name']}: {tool.get('description', '')}\n"
+                     f"  Argument schema: {json.dumps(schema)}")
     return "\n".join(lines)
 
 
@@ -55,7 +55,10 @@ def make_plan(client, issue_number: int, tool_schemas: list[dict], trace=None, *
         user += ("\n\nYour last plan was rejected. Its failures, as (step, check): "
                  + json.dumps(failures) + "\nCheck 1: unknown tool. Check 2: depends on a step that is not "
                  "earlier. Check 3: no tool or no expected_result. Check 4: too few or too many steps. "
-                 "Check \"schema\": the plan did not fit submit_plan's schema; every field of every step is required.")
+                 "Check \"schema\": the plan or its tool arguments did not fit the supplied schemas. "
+                 "Regenerate complete args_json objects with the exact required argument names. "
+                 "After submit_plan is decoded, json.loads(step['args_json']) must return an object; "
+                 "do not add an extra layer of backslash escaping.")
     response = client.create(system=_prompt(PLANNER_PROMPT), messages=[{"role": "user", "content": user}],
                              tools=[SUBMIT_PLAN])
     if trace is not None:

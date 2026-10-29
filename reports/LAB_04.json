@@ -1,19 +1,268 @@
 {
-  "plan_marks": [],
-  "durability": null,
-  "uncrashed_run_id": null,
-  "matrix_derived": [],
-  "matrix_uuid": [],
-  "duplicate_comment_ids": {},
-  "reopened": {
-    "with_store": {"runs": 0, "passes": 0, "mean_tool_calls": null, "mean_tokens": null, "run_ids": []},
-    "empty_store": {"runs": 0, "passes": 0, "mean_tool_calls": null, "mean_tokens": null, "run_ids": []}
+  "plan_marks": [
+    {
+      "step": 1,
+      "kind": "read",
+      "checkpoint": "after"
+    },
+    {
+      "step": 2,
+      "kind": "read",
+      "checkpoint": "after"
+    },
+    {
+      "step": 3,
+      "kind": "read",
+      "checkpoint": "after"
+    },
+    {
+      "step": 4,
+      "kind": "keyed_write",
+      "checkpoint": "before"
+    },
+    {
+      "step": 5,
+      "kind": "keyed_write",
+      "checkpoint": "before"
+    }
+  ],
+  "durability": "sync",
+  "uncrashed_run_id": "planned-4201-s01-f62e39",
+  "matrix_derived": [
+    {
+      "run_id": "planned-4201-s01-0d8c86",
+      "step": 1,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-ea38e9",
+      "step": 1,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-41d797",
+      "step": 2,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-8e64c6",
+      "step": 2,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-44cbc2",
+      "step": 3,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-1110ca",
+      "step": 3,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-cc99b8",
+      "step": 4,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-06837d",
+      "step": 4,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-49cc70",
+      "step": 5,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-edaa9b",
+      "step": 5,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    }
+  ],
+  "matrix_uuid": [
+    {
+      "run_id": "planned-4201-s01-061c49",
+      "step": 1,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-f5e617",
+      "step": 1,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-200384",
+      "step": 2,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-037409",
+      "step": 2,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-a77637",
+      "step": 3,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-f72be3",
+      "step": 3,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-ce8a1c",
+      "step": 4,
+      "when": "after",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-7d54c4",
+      "step": 4,
+      "when": "during",
+      "comments": 1,
+      "open_prs": 1,
+      "matches": true
+    },
+    {
+      "run_id": "planned-4201-s01-3bdf47",
+      "step": 5,
+      "when": "after",
+      "comments": 2,
+      "open_prs": 1,
+      "matches": false
+    },
+    {
+      "run_id": "planned-4201-s01-df423c",
+      "step": 5,
+      "when": "during",
+      "comments": 2,
+      "open_prs": 1,
+      "matches": false
+    }
+  ],
+  "duplicate_comment_ids": {
+    "planned-4201-s01-3bdf47": [
+      9,
+      10
+    ],
+    "planned-4201-s01-df423c": [
+      11,
+      12
+    ]
   },
-  "checkpoint_bytes": {"structured": null, "with_conversation": null, "runs": 0},
-  "contradiction_test": [],
+  "reopened": {
+    "with_store": {
+      "runs": 5,
+      "passes": 5,
+      "mean_tool_calls": 5.0,
+      "mean_tokens": 13223.0,
+      "run_ids": [
+        "planned-4207-s01-075811",
+        "planned-4207-s02-d84ca5",
+        "planned-4207-s03-33bc99",
+        "planned-4207-s04-522e9b",
+        "planned-4207-s05-38f20a"
+      ]
+    },
+    "empty_store": {
+      "runs": 5,
+      "passes": 5,
+      "mean_tool_calls": 5.0,
+      "mean_tokens": 13630.4,
+      "run_ids": [
+        "planned-4207-s01-3000b2",
+        "planned-4207-s02-cb1b33",
+        "planned-4207-s03-2ed882",
+        "planned-4207-s04-1bdbbd",
+        "planned-4207-s05-deaf99"
+      ]
+    }
+  },
+  "checkpoint_bytes": {
+    "structured": 28933,
+    "with_conversation": 134981,
+    "runs": 1
+  },
+  "contradiction_test": [
+    11
+  ],
   "forgetting": {
-    "attention": {"fact": null, "effect": {}, "lost": null, "fixed": null},
-    "compaction": {"fact": null, "effect": {}, "lost": null, "fixed": null},
-    "session": {"fact": null, "effect": {}, "stated": null, "lost": null, "fixed": null}
+    "attention": {
+      "fact": "Ledgerline maintainers classify reports that the Export button stays disabled after an export failure as feature.",
+      "effect": {
+        "label": "feature"
+      },
+      "lost": "planned-4192-s01-bbb35b",
+      "fixed": "planned-4192-s01-4c40ce"
+    },
+    "compaction": {
+      "fact": "Ledgerline maintainers classify reports that the Export button stays disabled after an export failure as feature.",
+      "effect": {
+        "label": "feature"
+      },
+      "lost": "planned-4192-s01-696322",
+      "fixed": "planned-4192-s01-bcbfda"
+    },
+    "session": {
+      "fact": "Ledgerline maintainers classify reports that the Export button stays disabled after an export failure as feature.",
+      "effect": {
+        "label": "feature"
+      },
+      "stated": "planned-4192-s01-fa2124",
+      "lost": "planned-4192-s01-832947",
+      "fixed": "planned-4192-s01-3547e2"
+    }
   }
 }
